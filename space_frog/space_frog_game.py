@@ -100,6 +100,9 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit(0)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    Game().game_loop()
 
     def update(self):
         self.player_group.update(self.delta)
