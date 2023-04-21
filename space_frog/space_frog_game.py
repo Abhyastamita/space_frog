@@ -35,15 +35,17 @@ class Player(Sprite):
     def __init__(self, x, y, *groups):
         super().__init__(*groups)
         angle = random.randint(0, 360)
-        self.image = pygame.image.load('space_frog/images/frog_frame.png').convert_alpha()
+        self.image = pygame.image.load('space_frog/images/space_frog.png').convert_alpha()
         self.image = pygame.transform.rotate(self.image, angle)
         self.mask = pygame.mask.from_surface(self.image)
         self.world_rect = self.image.get_rect().move(x, y)
+        self.size = 2
 
         self.center = pygame.Vector2(self.world_rect.center)
         self.vector = pygame.Vector2()
         self.vector.from_polar((1, angle))
         self.speed = 10
+        self.last_collision = None
         
 
     def update(self, delta, keys):
@@ -76,21 +78,26 @@ class Splat(Sprite):
         self.world_rect.center = self.center
 
 class Asteroid(Sprite):
-    def __init__(self, x, y, *groups):
+    def __init__(self, x, y, size = 1, scale_range = (2, 15), angle = None, speed = None, *groups):
         super().__init__(*groups)
         self.image = pygame.image.load('space_frog/images/asteroid1.png').convert_alpha()
         width = self.image.get_rect().width
         height = self.image.get_rect().height
-        angle = random.randint(0, 360)
-        self.image = pygame.transform.scale(self.image, (width / random.randint(2, 15), height / random.randint(2, 15)))
+        if not angle:
+            angle = random.randint(0,360)
+        self.speed = speed
+        if not self.speed:
+            self.speed = random.randint(0, 60)
+        self.image = pygame.transform.scale(self.image, (width / random.randint(scale_range[0], scale_range[1]), height / random.randint(scale_range[0], scale_range[1])))
         self.image = pygame.transform.rotate(self.image, angle)
         self.mask = pygame.mask.from_surface(self.image)
         self.world_rect = self.image.get_rect().move(x, y)
+        self.size = size
+        self.last_collision = None
 
         self.center = pygame.Vector2(self.world_rect.center)
         self.vector = pygame.Vector2()
         self.vector.from_polar((1, angle))
-        self.speed = random.randint(0, 60)
 
 
     def update(self, delta, group):
@@ -98,9 +105,34 @@ class Asteroid(Sprite):
         self.world_rect.center = self.center
 
         if (collided_with := pygame.sprite.spritecollideany(self, group, pygame.sprite.collide_mask)):
-            old_vector = self.vector
-            self.vector.reflect_ip(collided_with.vector)
-            collided_with.vector.reflect_ip(old_vector)
+            if collided_with != self.last_collision:
+                v1 = self.speed
+                v2 = collided_with.speed
+                self.speed = (v1 * (self.size - collided_with.size) + 2 * collided_with.size * v2) / (self.size + collided_with.size)
+                collided_with.speed = (v2 * (collided_with.size - self.size) + 2 * self.size * v1) / (self.size + collided_with.size)
+                old_vector = self.vector
+                self.vector.reflect_ip(collided_with.vector)
+                collided_with.vector.reflect_ip(old_vector)
+                self.last_collision = collided_with
+        else:
+            self.last_collision = None
+
+class SmallAsteroid(Asteroid):
+    def __init__(self, x, y, angle = None, speed = None, *groups):
+        super().__init__(x, y, size = 1, scale_range = (15, 18), angle = angle, speed = speed, *groups)
+
+
+class MediumAsteroid(Asteroid):
+    def __init__(self, x, y, angle = None, speed = None, *groups):
+        super().__init__(x, y, size = 3, scale_range = (6, 10), angle = angle, speed = speed, *groups)
+
+class LargeAsteroid(Asteroid):
+    def __init__(self, x, y, angle = None, speed = None, *groups):
+        super().__init__(x, y, size = 4, scale_range = (3, 5), angle = angle, speed = speed, *groups)
+
+class HugeAsteroid(Asteroid):
+    def __init__(self, x, y, angle = None, speed = None, *groups):
+        super().__init__(x, y, size = 5, scale_range = (1, 2), angle = angle, speed = speed, *groups)
 
 
 class Viewport:
@@ -137,8 +169,14 @@ class Game:
         self.delta = 0
         self.fps = S.FPS
 
-        for i in range(50):
-            self.asteroids.add(Asteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
+        for i in range(5):
+            self.asteroids.add(HugeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
+        for i in range(25):
+            self.asteroids.add(SmallAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
+        for i in range(10):
+            self.asteroids.add(MediumAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
+        for i in range(10):
+            self.asteroids.add(LargeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
         
 
     def game_loop(self):
@@ -169,22 +207,33 @@ class Game:
 
     def check_player_collisions(self):
         if self.player.alive() and (collided_with := pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)):
-            if self.player.speed <= 30:
-                # Moving slowly? Land on the asteroid
-                self.player.vector = collided_with.vector
-                self.player.speed = collided_with.speed
-            elif self.player.speed > 100:
-                # Too fast? Go splat on the asteroid
-                self.player.kill()
-                splat = Splat(self.player.rect.left, self.player.rect.top)
-                splat.vector = collided_with.vector
-                splat.speed = collided_with.speed
-                self.player_group.add(splat)
-            else:
-            #Otherwise bounce off the asteroid.
-                old_vector = self.player.vector
-                self.player.vector.reflect_ip(collided_with.vector)
-                collided_with.vector.reflect_ip(old_vector)
+            if self.player.last_collision != collided_with:
+                if self.player.speed <= 30:
+                    # Moving slowly? Land on the asteroid
+                    self.player.vector = collided_with.vector
+                    self.player.speed = collided_with.speed
+                    self.player.last_collision = collided_with
+                if self.player.speed > 120:
+                    # Too fast? Go splat on the asteroid
+                    self.player.kill()
+                    splat = Splat(self.player.world_rect.left, self.player.world_rect.top)
+                    if self.player.size >= collided_with.size:
+                        collided_with.speed += self.player.speed
+                    splat.vector = collided_with.vector
+                    splat.speed = collided_with.speed
+                    self.player_group.add(splat)
+                else:
+                    #Otherwise bounce off the asteroid.
+                    v1 = self.player.speed
+                    v2 = collided_with.speed
+                    self.player.speed = (v1 * (self.player.size - collided_with.size) + 2 * collided_with.size * v2) / (self.player.size + collided_with.size)
+                    collided_with.speed = (v2 * (collided_with.size - self.player.size) + 2 * self.player.size * v1) / (self.player.size + collided_with.size)
+                    old_vector = self.player.vector
+                    self.player.vector.reflect_ip(collided_with.vector)
+                    collided_with.vector.reflect_ip(old_vector)
+                    self.player.last_collision = collided_with
+        else:
+            self.player.last_collision = None
 
 
 
