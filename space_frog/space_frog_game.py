@@ -11,18 +11,16 @@ import space_frog.settings as S
 class Player(Sprite):
     def __init__(self, x, y, *groups):
         super().__init__(*groups)
-        self.image = Surface((25, 25))
-        # width = self.image.get_rect().width
-        # height = self.image.get_rect().height
         angle = random.randint(0, 360)
-        self.image.fill((0, 200, 50))
+        self.image = pygame.image.load('space_frog/images/frog_frame.png').convert_alpha()
         self.image = pygame.transform.rotate(self.image, angle)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(x, y)
 
         self.center = pygame.Vector2(self.rect.center)
         self.vector = pygame.Vector2()
         self.vector.from_polar((1, angle))
-        self.speed = 100
+        self.speed = 10
         
 
     def update(self, delta, keys):
@@ -32,10 +30,10 @@ class Player(Sprite):
             self.speed -= 5
         if keys[pygame.K_LEFT]:
             self.vector.rotate_ip(-5)
-            pygame.transform.rotate(self.image, -5)
+            # self.image = pygame.transform.rotate(self.image, -5)
         if keys[pygame.K_RIGHT]:
             self.vector.rotate_ip(5)
-            pygame.transform.rotate(self.image, 5)
+            # self.image = pygame.transform.rotate(self.image, 5)
         self.center += self.vector * delta * self.speed
         self.rect.center = self.center
 
@@ -63,6 +61,7 @@ class Asteroid(Sprite):
         angle = random.randint(0, 360)
         self.image = pygame.transform.scale(self.image, (width / random.randint(2, 10), height / random.randint(2, 10)))
         self.image = pygame.transform.rotate(self.image, angle)
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(x, y)
 
         self.center = pygame.Vector2(self.rect.center)
@@ -70,11 +69,12 @@ class Asteroid(Sprite):
         self.vector.from_polar((1, angle))
         self.speed = random.randint(0, 60)
 
+
     def update(self, delta, group):
         self.center += self.vector * delta * self.speed
         self.rect.center = self.center
 
-        if (collided_with := pygame.sprite.spritecollideany(self, group)):
+        if (collided_with := pygame.sprite.spritecollideany(self, group, pygame.sprite.collide_mask)):
             old_vector = self.vector
             self.vector.reflect_ip(collided_with.vector)
             collided_with.vector.reflect_ip(old_vector)
@@ -95,7 +95,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.delta = 0
         self.fps = S.FPS
-        for i in range(16):
+        for i in range(7):
             self.asteroids.add(Asteroid(random.randrange(0, S.SCREEN_WIDTH), random.randrange(0, S.SCREEN_HEIGHT)))
 
     def game_loop(self):
@@ -121,20 +121,28 @@ class Game:
     def update(self):
         self.player_group.update(self.delta, key.get_pressed())
         self.asteroids.update(self.delta, self.asteroids)
-        if self.player.alive() and (collided_with := pygame.sprite.spritecollideany(self.player, self.asteroids)):
-            if self.player.speed > 70:
+        if self.player.alive() and (collided_with := pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)):
+            if self.player.speed <= 30:
+                # Moving slowly? Land on the asteroid
+                self.player.vector = collided_with.vector
+                self.player.speed = collided_with.speed
+            elif self.player.speed > 100:
+                # Too fast? Go splat on the asteroid
                 self.player.kill()
                 splat = Splat(self.player.rect.left, self.player.rect.top)
                 splat.vector = collided_with.vector
                 splat.speed = collided_with.speed
                 self.player_group.add(splat)
-            old_vector = self.player.vector
-            self.player.vector.reflect_ip(collided_with.vector)
-            collided_with.vector.reflect_ip(old_vector)
+            else:
+            #Otherwise bounce off the asteroid.
+                old_vector = self.player.vector
+                self.player.vector.reflect_ip(collided_with.vector)
+                collided_with.vector.reflect_ip(old_vector)
+
 
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((15, 15, 15))
         self.player_group.draw(self.screen)
         self.asteroids.draw(self.screen)
 
