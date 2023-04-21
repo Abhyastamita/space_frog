@@ -22,4 +22,4 @@ class Background(Sprite):
         speed = 1
         for i in self.bg_images:
             screen.blit(i, (self.rect.x * speed, self.rect.y * speed))
-            speed += 0.5
+            speed += 0.2

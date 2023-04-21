@@ -43,7 +43,7 @@ class Viewport:
 
     def update_rect(self, group):
          for sprite in group:
-             sprite.rect = sprite.world_rect.move(-self.left, -self.top)       
+             sprite.rect = sprite.world_rect.move(-self.left, -self.top)
 
 class Game:
     def __init__(self):
@@ -145,8 +145,10 @@ class Game:
                     #Otherwise bounce off the asteroid.
                     v1 = self.player.speed
                     v2 = collided_with.speed
-                    self.player.speed = (v1 * (self.player.size - collided_with.size) + 2 * collided_with.size * v2) / (self.player.size + collided_with.size)
-                    collided_with.speed = (v2 * (collided_with.size - self.player.size) + 2 * self.player.size * v1) / (self.player.size + collided_with.size)
+                    self.player.speed = abs((v1 * (self.player.size - collided_with.size) + 2 * collided_with.size * v2) 
+                                            / (self.player.size + collided_with.size))
+                    collided_with.speed = abs((v2 * (collided_with.size - self.player.size) + 2 * self.player.size * v1) 
+                                              / (self.player.size + collided_with.size))
                     old_vector = self.player.vector
                     self.player.vector.reflect_ip(collided_with.vector)
                     collided_with.vector.reflect_ip(old_vector)
@@ -161,6 +163,7 @@ class Game:
         self.viewport.update_rect(self.player_group)
         self.viewport.update_rect(self.asteroids)
         self.viewport.update_rect(self.gates)
+        self.screen.fill((1, 13, 30))
         self.background.draw(self.screen)
         self.player_group.draw(self.screen)
         self.asteroids.draw(self.screen) 

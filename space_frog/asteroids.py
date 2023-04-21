@@ -34,8 +34,8 @@ class Asteroid(Sprite):
             if collided_with != self.last_collision:
                 v1 = self.speed
                 v2 = collided_with.speed
-                self.speed = (v1 * (self.size - collided_with.size) + 2 * collided_with.size * v2) / (self.size + collided_with.size)
-                collided_with.speed = (v2 * (collided_with.size - self.size) + 2 * self.size * v1) / (self.size + collided_with.size)
+                self.speed = abs((v1 * (self.size - collided_with.size) + 2 * collided_with.size * v2) / (self.size + collided_with.size))
+                collided_with.speed = abs((v2 * (collided_with.size - self.size) + 2 * self.size * v1) / (self.size + collided_with.size))
                 old_vector = self.vector
                 self.vector.reflect_ip(collided_with.vector)
                 collided_with.vector.reflect_ip(old_vector)
