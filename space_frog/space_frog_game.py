@@ -10,6 +10,7 @@ import space_frog.settings as S
 from space_frog.player import Player, Splat
 from space_frog.asteroids import SmallAsteroid, MediumAsteroid, LargeAsteroid, HugeAsteroid
 from space_frog.background import Background
+from space_frog.hud import HUD
 
 
 class Gate(Sprite):
@@ -57,6 +58,7 @@ class Game:
         self.add_background()
         self.viewport = Viewport()
         self.viewport.update(self.player)
+        self.hud = HUD(self.screen, self.player)
         self.set_clock()
 
     def set_clock(self):
@@ -115,9 +117,11 @@ class Game:
 
     def update(self):
         self.player_group.update(self.delta, key.get_pressed())
+        self.hud.prep_info(self.player)
         self.asteroids.update(self.delta, self.asteroids)
         self.gates.update(self.delta)
         self.viewport.update(self.player)
+        self.hud.show_info()
         self.check_player_collisions()
 
     def check_player_collisions(self):

@@ -18,19 +18,23 @@ class Player(Sprite):
         self.vector = pygame.Vector2()
         self.vector.from_polar((1, angle))
         self.speed = 10
+        self.fuel = 100.0
         self.last_collision = None
         
 
     def update(self, delta, keys):
-        if keys[pygame.K_UP]:
+        if self.fuel > 0 and keys[pygame.K_UP]:
             self.speed += 5
-        if keys[pygame.K_DOWN]:
+            self.fuel -= 0.5
+        if self.speed > 0 and keys[pygame.K_DOWN]:
             self.speed -= 5
-        if keys[pygame.K_LEFT]:
+        if self.fuel > 0 and keys[pygame.K_LEFT]:
             self.vector.rotate_ip(-5)
+            self.fuel -= 0.25
             # self.image = pygame.transform.rotate(self.image, -5)
-        if keys[pygame.K_RIGHT]:
+        if self.fuel > 0 and keys[pygame.K_RIGHT]:
             self.vector.rotate_ip(5)
+            self.fuel -= 0.25
             # self.image = pygame.transform.rotate(self.image, 5)
         self.center += self.vector * delta * self.speed
         self.world_rect.center = self.center
