@@ -2,6 +2,7 @@ import random
 import sys
 
 import pygame
+from pygame import key
 from pygame.surface import Surface
 from pygame.sprite import Sprite, Group, GroupSingle
 
@@ -24,7 +25,17 @@ class Player(Sprite):
         self.speed = 100
         
 
-    def update(self, delta):
+    def update(self, delta, keys):
+        if keys[pygame.K_UP]:
+            self.speed += 5
+        if keys[pygame.K_DOWN]:
+            self.speed -= 5
+        if keys[pygame.K_LEFT]:
+            self.vector.rotate_ip(-5)
+            pygame.transform.rotate(self.image, -5)
+        if keys[pygame.K_RIGHT]:
+            self.vector.rotate_ip(5)
+            pygame.transform.rotate(self.image, 5)
         self.center += self.vector * delta * self.speed
         self.rect.center = self.center
 
@@ -39,7 +50,7 @@ class Splat(Sprite):
         self.vector = pygame.Vector2()
         self.speed = 0
 
-    def update(self, delta):
+    def update(self, delta, *args):
         self.center += self.vector * delta * self.speed
         self.rect.center = self.center
 
@@ -101,11 +112,14 @@ class Game:
             if event.type == pygame.QUIT:
                 sys.exit(0)
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
+                if event.key == pygame.K_SPACE and event.mod == pygame.KMOD_CTRL:
+                    pass # debug
+                elif event.key == pygame.K_r:
                     Game().game_loop()
+                
 
     def update(self):
-        self.player_group.update(self.delta)
+        self.player_group.update(self.delta, key.get_pressed())
         self.asteroids.update(self.delta, self.asteroids)
         if self.player.alive() and (collided_with := pygame.sprite.spritecollideany(self.player, self.asteroids)):
             if self.player.speed > 70:
