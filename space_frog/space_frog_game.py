@@ -51,23 +51,38 @@ class Game:
         #     print(m)
         self.screen = pygame.display.set_mode((S.SCREEN_WIDTH, S.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Frog!")
-        self.player = Player(S.SCREEN_WIDTH / 2, S.SCREEN_HEIGHT / 2)
-        self.player_group = GroupSingle()
-        self.player_group.add(self.player)
-        self.asteroids = Group()
-        self.gates = Group()
-        self.entry_gate = Gate(S.SCREEN_WIDTH / 2 - 5, S.SCREEN_HEIGHT / 2, False, self.gates)
-        self.exit_gate = Gate(3000, 3000, self.gates)
-        self.background = Background("blue_nebula", "small_stars_1", "big_stars_1")
-        self.bg_group = Group()
-        self.bg_group.add(self.background)
+        self.create_player()
+        self.add_asteroids() 
+        self.add_gates()
+        self.add_background()
         self.viewport = Viewport()
         self.viewport.update(self.player)
+        self.set_clock()
 
+    def set_clock(self):
         self.clock = pygame.time.Clock()
         self.delta = 0
         self.fps = S.FPS
 
+    def add_background(self):
+        self.background = Background("blue_nebula", "small_stars_1", "big_stars_1")
+        self.bg_group = Group()
+        self.bg_group.add(self.background)
+
+    def add_gates(self):
+        self.gates = Group()
+        self.entry_gate = Gate(S.SCREEN_WIDTH / 2 - 5, S.SCREEN_HEIGHT / 2, False, self.gates)
+        self.exit_gate = Gate(3000, 3000, self.gates)
+
+    def create_player(self):
+        self.player = Player(S.SCREEN_WIDTH / 2, S.SCREEN_HEIGHT / 2)
+        self.player_group = GroupSingle()
+        self.player_group.add(self.player)
+
+        
+
+    def add_asteroids(self):
+        self.asteroids = Group()
         for i in range(5):
             self.asteroids.add(HugeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
         for i in range(25):
@@ -75,7 +90,7 @@ class Game:
         for i in range(10):
             self.asteroids.add(MediumAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
         for i in range(10):
-            self.asteroids.add(LargeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
+            self.asteroids.add(LargeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT)))
         
 
     def game_loop(self):
