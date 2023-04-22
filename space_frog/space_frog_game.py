@@ -1,4 +1,5 @@
 import sys
+import copy
 
 import pygame
 from pygame import key
@@ -109,7 +110,7 @@ class Game:
             if self.player.last_collision != collided_with:
                 if self.player.speed <= S.DOCKING_SPEED:
                     # Moving slowly? Land on the asteroid
-                    self.player.vector = collided_with.vector
+                    self.player.vector = copy.copy(collided_with.vector)
                     self.player.speed = collided_with.speed
                     self.player.last_collision = collided_with
                 if self.player.speed > S.MAX_COLLISION_SPEED:
@@ -118,7 +119,7 @@ class Game:
                     splat = Splat(self.player.world_rect.left, self.player.world_rect.top)
                     if self.player.size >= collided_with.size:
                         collided_with.speed += self.player.speed
-                    splat.vector = collided_with.vector
+                    splat.vector = self.player.vector.reflect(collided_with.vector)
                     splat.speed = collided_with.speed
                     self.player_group.add(splat)
                 else:
