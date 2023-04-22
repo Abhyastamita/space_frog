@@ -31,15 +31,31 @@ class Game:
         self.screen = pygame.display.set_mode((S.SCREEN_WIDTH, S.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Frog!")
         
-        self.level_counter = 0
-        self.level = []
-        self.level.append(Level(("blue_nebula", "small_stars_1", "big_stars_1")))
-        self.level.append(Level(("pink_nebula", "small_stars_2", "big_stars_2")))
-        self = self.level[1].load_level(self)
+        level_list = []
+        level_list.append(Level(("blue_nebula", "small_stars_1", "big_stars_1")))
+        level_list.append(Level(("pink_nebula", "small_stars_2", "big_stars_2")))
+        self.levels = iter(level_list)
+        self.load_next_level()
+        self.start_game_level()
+
+    def start_game_level(self):
+        self.win = False
         self.viewport = Viewport()
         self.viewport.update(self.player)
         self.hud = HUD(self.screen, self.player)
         self.set_clock()
+        self.game_loop()
+
+    def load_next_level(self):
+        try:
+            self.level = next(self.levels)
+            self = self.level.load_level(self)
+        except StopIteration:
+            print("You have won all the levels!")
+            sys.exit(0)
+
+    def reload_level(self):
+        self = self.level.load_level(self)
 
     def set_clock(self):
         self.clock = pygame.time.Clock()
@@ -53,6 +69,10 @@ class Game:
             self.update()
             pygame.display.flip()
             self.delta = self.clock.tick(self.fps) * 0.001
+            if self.win:
+                break
+        self.load_next_level()
+        self.start_game_level()
 
 
     def handle_events(self):
@@ -63,7 +83,8 @@ class Game:
                 if event.key == pygame.K_SPACE and event.mod == pygame.KMOD_CTRL:
                     pass # debug
                 elif event.key == pygame.K_r:
-                    Game().game_loop()
+                    self.reload_level()
+                    self.start_game_level()
                 
 
     def update(self):
@@ -71,10 +92,17 @@ class Game:
         self.asteroids.update(self.delta, self.asteroids)
         self.gates.update(self.delta)
         self.viewport.update(self.player)
+        if self.check_for_win():
+            self.win = True
+            return
         self.calculate_exit()
         self.hud.prep_info(self.player)
         self.hud.show_info()
         self.check_player_collisions()
+
+    def check_for_win(self):
+        if self.player.alive() and pygame.sprite.spritecollideany(self.exit, self.player_group, pygame.sprite.collide_mask):
+            return True
 
     def check_player_collisions(self):
         if self.player.alive() and (collided_with := pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)):
