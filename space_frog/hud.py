@@ -10,6 +10,7 @@ class HUD:
 
         self.text_color = (250, 250, 250)
         self.font = pygame.freetype.SysFont('arial', 20)
+        self.large_font = pygame.freetype.SysFont('arial', 40)
         self.prep_info(player)
 
     def prep_info(self, player):
@@ -25,19 +26,37 @@ class HUD:
         else:
             speed_message = ""
             speed_color = (250, 250, 250)
+        if player.fuel < 15:
+            fuel_color = (250, 0, 0)
+        elif player.fuel < 35:
+            fuel_color = (255, 191, 0)
+        else:
+            fuel_color = (250, 250, 250)
         self.text_lines = []
-        speed_image_rect = pygame.freetype.Font.render(self.font, f"Speed: {player_speed} {speed_message}", speed_color)
-        speed_image_rect[1].left = self.screen_rect.left + 20
-        speed_image_rect[1].top = self.screen_rect.top + 20
-        self.text_lines.append(speed_image_rect)
-        fuel_image_rect = pygame.freetype.Font.render(self.font, f"Fuel: {player_fuel}% full", self.text_color)
-        fuel_image_rect[1].left = self.screen_rect.left + 20
-        fuel_image_rect[1].top = self.screen_rect.top + 45
-        self.text_lines.append(fuel_image_rect)
-        exit_image_rect = pygame.freetype.Font.render(self.font, f"Distance to exit: {player_distance} m", self.text_color)
-        exit_image_rect[1].left = self.screen_rect.left + 20
-        exit_image_rect[1].top = self.screen_rect.top + 70
-        self.text_lines.append(exit_image_rect)
+        text_image_rect = self.prepare_multiline((20, 20), self.font, f"Speed: {player_speed} {speed_message}", speed_color)
+        self.text_lines.append(text_image_rect)
+        text_image_rect = self.prepare_multiline((20, 45), self.font, f"Fuel: {player_fuel}% full", fuel_color)
+        self.text_lines.append(text_image_rect)
+        text_image_rect = self.prepare_multiline((20, 70), self.font, f"Distance to exit: {player_distance} m", self.text_color)
+        self.text_lines.append(text_image_rect)
+        if player.off_screen:
+            text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 380, S.SCREEN_HEIGHT / 2 + 150), self.large_font, f"Entering deep space. There is nothing out here to see.", self.text_color)
+            self.text_lines.append(text_image_rect)
+        if player.fuel <= 0:
+            text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 380, S.SCREEN_HEIGHT / 2 + 200), self.large_font, f"Out of fuel. Press R to restart.", self.text_color)
+            self.text_lines.append(text_image_rect)
+        if not player.alive():
+            text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 380, S.SCREEN_HEIGHT / 2 + 100), self.large_font, f"You have died. Press R to restart.", self.text_color)
+            self.text_lines.append(text_image_rect)
+
+
+
+
+    def prepare_multiline(self, location, font, text, color):
+        text_image_rect = pygame.freetype.Font.render(font, text , color)
+        text_image_rect[1].left = self.screen_rect.left + location[0]
+        text_image_rect[1].top = self.screen_rect.top + location[1]
+        return text_image_rect
 
 
     def show_info(self):

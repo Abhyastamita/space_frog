@@ -2,6 +2,7 @@ import random
 
 import pygame
 from pygame.sprite import Sprite
+import space_frog.settings as S
 
 class Asteroid(Sprite):
     def __init__(self, x, y, size = 1, scale_range = (2, 15), angle = None, speed = None, *groups):
@@ -37,12 +38,22 @@ class Asteroid(Sprite):
                 self.speed = abs((v1 * (self.size - collided_with.size) + 2 * collided_with.size * v2) / (self.size + collided_with.size))
                 collided_with.speed = abs((v2 * (collided_with.size - self.size) + 2 * self.size * v1) / (self.size + collided_with.size))
                 old_vector = self.vector
-                self.vector.reflect_ip(collided_with.vector)
+                self.vector.reflect_ip(collided_with.vector) 
                 collided_with.vector.reflect_ip(old_vector)
                 self.last_collision = collided_with
+                collided_with.last_collision = self
         else:
             self.last_collision = None
 
+        #Recycle asteroids that have drifted too far out into space
+        if self.world_rect.left > S.WORLD_WIDTH + 300:
+            self.world_rect.left -= S.WORLD_WIDTH + 600
+        elif self.world_rect.left < -300:
+            self.world_rect.left += S.WORLD_WIDTH + 600
+        elif self.world_rect.top > S.WORLD_HEIGHT + 300:
+            self.world_rect.top -= S.WORLD_HEIGHT + 600
+        elif self.world_rect.top < -300:
+            self.world_rect.top += S.WORLD_HEIGHT + 600
 
 class SmallAsteroid(Asteroid):
     def __init__(self, x, y, angle = None, speed = None, *groups):

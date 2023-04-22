@@ -3,6 +3,7 @@ import random
 import pygame
 from pygame.surface import Surface
 from pygame.sprite import Sprite
+import space_frog.settings as S
 
 class Player(Sprite):
     def __init__(self, x, y, *groups):
@@ -21,6 +22,7 @@ class Player(Sprite):
         self.fuel = 100.0
         self.last_collision = None
         self.distance_to_exit = None
+        self.off_screen = False
         
 
     def update(self, delta, keys):
@@ -39,6 +41,12 @@ class Player(Sprite):
             # self.image = pygame.transform.rotate(self.image, 5)
         self.center += self.vector * delta * self.speed
         self.world_rect.center = self.center
+
+        if self.world_rect.left > S.WORLD_WIDTH or self.world_rect.left < 0 \
+            or self.world_rect.top > S.WORLD_HEIGHT or self.world_rect.top < 0:
+            self.off_screen = True
+        else:
+            self.off_screen = False
 
 class Splat(Sprite):
     def __init__(self, x, y, *groups):
