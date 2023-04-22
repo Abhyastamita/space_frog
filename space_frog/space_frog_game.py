@@ -54,7 +54,7 @@ class Game:
         pygame.display.set_caption("Space Frog!")
         self.create_player()
         self.add_asteroids() 
-        self.add_gates()
+        self.set_up_gates()
         self.add_background()
         self.viewport = Viewport()
         self.viewport.update(self.player)
@@ -71,10 +71,14 @@ class Game:
         self.bg_group = Group()
         self.bg_group.add(self.background)
 
-    def add_gates(self):
+    def set_up_gates(self):
         self.gates = Group()
-        self.entry_gate = Gate(S.SCREEN_WIDTH / 2 - 5, S.SCREEN_HEIGHT / 2, False, self.gates)
-        self.exit_gate = Gate(3000, 3000, self.gates)
+        self.entry = Gate(S.SCREEN_WIDTH / 2 - 25, S.SCREEN_HEIGHT / 2, False, self.gates)
+        self.exit = Gate(3000, 3000, True, self.gates)
+        self.calculate_exit()
+
+    def calculate_exit(self):
+        self.player.distance_to_exit = self.player.center.distance_to(self.exit.center)
 
     def create_player(self):
         self.player = Player(S.SCREEN_WIDTH / 2, S.SCREEN_HEIGHT / 2)
@@ -117,10 +121,11 @@ class Game:
 
     def update(self):
         self.player_group.update(self.delta, key.get_pressed())
-        self.hud.prep_info(self.player)
         self.asteroids.update(self.delta, self.asteroids)
         self.gates.update(self.delta)
         self.viewport.update(self.player)
+        self.calculate_exit()
+        self.hud.prep_info(self.player)
         self.hud.show_info()
         self.check_player_collisions()
 

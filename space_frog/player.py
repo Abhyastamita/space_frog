@@ -20,6 +20,7 @@ class Player(Sprite):
         self.speed = 10
         self.fuel = 100.0
         self.last_collision = None
+        self.distance_to_exit = None
         
 
     def update(self, delta, keys):
