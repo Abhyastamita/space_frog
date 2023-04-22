@@ -33,8 +33,8 @@ class Game:
         pygame.display.set_caption("Space Frog!")
         
         level_list = []
-        level_list.append(Level(("blue_nebula", "small_stars_1", "big_stars_1")))
-        level_list.append(Level(("pink_nebula", "small_stars_2", "big_stars_2")))
+        level_list.append(Level("Level 1", ("blue_nebula", "small_stars_1", "big_stars_1")))
+        level_list.append(Level("Level 2", ("pink_nebula", "small_stars_2", "big_stars_2")))
         self.levels = iter(level_list)
         self.load_next_level()
         self.start_game_level()
@@ -44,15 +44,37 @@ class Game:
         self.viewport = Viewport()
         self.viewport.update(self.player)
         self.hud = HUD(self.screen, self.player)
+        self.get_ready()
         self.set_clock()
         self.game_loop()
+
+    def get_ready(self):
+        self.hud.ready_screen(self.level)
+        pygame.display.flip()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit(0)
+                elif event.type == pygame.KEYDOWN:
+                    return
+                
+    def show_victory_screen(self):
+        self.hud.end_screen()
+        pygame.display.flip()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit(0)
+                elif event.type == pygame.KEYDOWN:
+                    return
+
 
     def load_next_level(self):
         try:
             self.level = next(self.levels)
             self = self.level.load_level(self)
         except StopIteration:
-            print("You have won all the levels!")
+            self.show_victory_screen()
             sys.exit(0)
 
     def reload_level(self):

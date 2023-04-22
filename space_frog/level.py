@@ -9,8 +9,9 @@ from space_frog.background import Background
 from space_frog.gate import Gate
 
 class Level:
-    def __init__(self, background_images):
+    def __init__(self, title, background_images):
         self.background_images = background_images
+        self.title = title
 
     def load_level(self, game):
         self.game = game

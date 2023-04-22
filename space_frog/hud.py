@@ -49,7 +49,27 @@ class HUD:
             text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 380, S.SCREEN_HEIGHT / 2 + 100), self.large_font, f"You have died. Press R to restart.", self.text_color)
             self.text_lines.append(text_image_rect)
 
+    def ready_screen(self, level):
+        self.text_lines = []
+        text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 100, S.SCREEN_HEIGHT / 2 - 50), self.large_font, f"SPACE FROG!", (0, 255, 0))
+        self.text_lines.append(text_image_rect)
+        text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 15, S.SCREEN_HEIGHT / 2 + 50), self.font, f"{level.title}", (0, 255, 0))
+        self.text_lines.append(text_image_rect)
+        text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 75, S.SCREEN_HEIGHT / 2 + 75), self.font, f"Press any key to begin", (0, +255, 0))
+        self.text_lines.append(text_image_rect)
+        #Print title screen if there is one
+        self.show_info()
 
+    def end_screen(self):
+        self.text_lines = []
+        text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 100, S.SCREEN_HEIGHT / 2 - 50), self.large_font, f"SPACE FROG!", (0, 255, 0))
+        self.text_lines.append(text_image_rect)
+        text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 100, S.SCREEN_HEIGHT / 2 + 50), self.font, f"Congratulations! You have won!", (0, 255, 0))
+        self.text_lines.append(text_image_rect)
+        text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 70, S.SCREEN_HEIGHT / 2 + 75), self.font, f"Press any key to exit", (0, +255, 0))
+        self.text_lines.append(text_image_rect)
+        #Print end screen if there is one
+        self.show_info()
 
 
     def prepare_multiline(self, location, font, text, color):
