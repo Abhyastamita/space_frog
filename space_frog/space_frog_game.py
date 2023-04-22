@@ -1,36 +1,14 @@
-import random
 import sys
 
 import pygame
 from pygame import key
 from pygame.surface import Surface
-from pygame.sprite import Sprite, Group, GroupSingle
+from pygame.sprite import Sprite
 
 import space_frog.settings as S
-from space_frog.player import Player, Splat
-from space_frog.asteroids import SmallAsteroid, MediumAsteroid, LargeAsteroid, HugeAsteroid
-from space_frog.background import Background
+from space_frog.player import Splat
 from space_frog.hud import HUD
-
-
-class Gate(Sprite):
-    def __init__(self, x, y, exit, *groups):
-        super().__init__(*groups)
-        self.image = Surface((75, 75))
-        if exit:
-            self.image.fill((0, 255, 0))
-        else:
-            self.image.fill((255, 0, 0))
-        self.world_rect = self.image.get_rect().move(x, y)
-
-        self.center = pygame.Vector2(self.world_rect.center)
-        self.vector = pygame.Vector2()
-        self.speed = 0
-
-    def update(self, delta, *args):
-        self.center += self.vector * delta * self.speed
-        self.world_rect.center = self.center
-
+from space_frog.level import Level
 
 class Viewport:
     def __init__(self):
@@ -52,10 +30,12 @@ class Game:
         #     print(m)
         self.screen = pygame.display.set_mode((S.SCREEN_WIDTH, S.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Frog!")
-        self.create_player()
-        self.add_asteroids() 
-        self.set_up_gates()
-        self.add_background()
+        
+        self.level_counter = 0
+        self.level = []
+        self.level.append(Level(("blue_nebula", "small_stars_1", "big_stars_1")))
+        self.level.append(Level(("pink_nebula", "small_stars_2", "big_stars_2")))
+        self = self.level[1].load_level(self)
         self.viewport = Viewport()
         self.viewport.update(self.player)
         self.hud = HUD(self.screen, self.player)
@@ -64,40 +44,7 @@ class Game:
     def set_clock(self):
         self.clock = pygame.time.Clock()
         self.delta = 0
-        self.fps = S.FPS
-
-    def add_background(self):
-        self.background = Background("blue_nebula", "small_stars_1", "big_stars_1")
-        self.bg_group = Group()
-        self.bg_group.add(self.background)
-
-    def set_up_gates(self):
-        self.gates = Group()
-        self.entry = Gate(S.SCREEN_WIDTH / 2 - 25, S.SCREEN_HEIGHT / 2, False, self.gates)
-        self.exit = Gate(3000, 3000, True, self.gates)
-        self.calculate_exit()
-
-    def calculate_exit(self):
-        self.player.distance_to_exit = self.player.center.distance_to(self.exit.center)
-
-    def create_player(self):
-        self.player = Player(S.SCREEN_WIDTH / 2, S.SCREEN_HEIGHT / 2)
-        self.player_group = GroupSingle()
-        self.player_group.add(self.player)
-
-        
-
-    def add_asteroids(self):
-        self.asteroids = Group()
-        for i in range(5):
-            self.asteroids.add(HugeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
-        for i in range(25):
-            self.asteroids.add(SmallAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
-        for i in range(10):
-            self.asteroids.add(MediumAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT))) 
-        for i in range(10):
-            self.asteroids.add(LargeAsteroid(random.randrange(0, S.WORLD_WIDTH), random.randrange(0, S.WORLD_HEIGHT)))
-        
+        self.fps = S.FPS    
 
     def game_loop(self):
         while True:
@@ -132,12 +79,12 @@ class Game:
     def check_player_collisions(self):
         if self.player.alive() and (collided_with := pygame.sprite.spritecollideany(self.player, self.asteroids, pygame.sprite.collide_mask)):
             if self.player.last_collision != collided_with:
-                if self.player.speed <= 30:
+                if self.player.speed <= S.DOCKING_SPEED:
                     # Moving slowly? Land on the asteroid
                     self.player.vector = collided_with.vector
                     self.player.speed = collided_with.speed
                     self.player.last_collision = collided_with
-                if self.player.speed > 120:
+                if self.player.speed > S.MAX_COLLISION_SPEED:
                     # Too fast? Go splat on the asteroid
                     self.player.kill()
                     splat = Splat(self.player.world_rect.left, self.player.world_rect.top)
@@ -161,7 +108,8 @@ class Game:
         else:
             self.player.last_collision = None
 
-
+    def calculate_exit(self):
+        self.player.distance_to_exit = self.player.center.distance_to(self.exit.center)
 
     def draw(self):
         self.viewport.update_rect(self.bg_group)

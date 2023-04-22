@@ -1,4 +1,5 @@
 import pygame.freetype
+import space_frog.settings as S
 
 pygame.freetype.init()
 
@@ -15,8 +16,17 @@ class HUD:
         player_speed = str(round(player.speed, 2))
         player_fuel = str(player.fuel)
         player_distance = str(round(player.distance_to_exit, 2))
+        if player.speed > S.MAX_COLLISION_SPEED: 
+            speed_message = "- WARNING: TOO FAST"
+            speed_color = (250, 0, 0)
+        elif player.speed < S.DOCKING_SPEED: 
+            speed_message = "- Docking Speed"
+            speed_color = (50, 250, 70)
+        else:
+            speed_message = ""
+            speed_color = (250, 250, 250)
         self.text_lines = []
-        speed_image_rect = pygame.freetype.Font.render(self.font, f"Speed: {player_speed} m/s", self.text_color)
+        speed_image_rect = pygame.freetype.Font.render(self.font, f"Speed: {player_speed} {speed_message}", speed_color)
         speed_image_rect[1].left = self.screen_rect.left + 20
         speed_image_rect[1].top = self.screen_rect.top + 20
         self.text_lines.append(speed_image_rect)
