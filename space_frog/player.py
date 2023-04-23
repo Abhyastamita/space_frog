@@ -13,7 +13,6 @@ class Player(Sprite):
         self.angle = 0 # random.randint(0, 360)
         self.sheet = SpriteSheet(72, "space_frog/images/space_frog_full_sheet_72.png")
         self.image, self.mask = self.sheet.get_image(0, 2)
-        # self.image = pygame.transform.rotate(self.image, self.angle)
         self.world_rect = self.image.get_rect().move(x, y)
         self.size = 2
 
@@ -30,6 +29,8 @@ class Player(Sprite):
         self.last_collision = None
         self.distance_to_exit = None
         self.off_screen = False
+        self.docked = False
+        self.docked_with = None
     
 
     def loop_rocket_animation(self, direction):
@@ -49,27 +50,34 @@ class Player(Sprite):
 
     def update(self, delta, keys):
         rocket = False
-        if self.fuel > 0 and keys[pygame.K_UP]:
-            self.speed += 5
-            self.fuel -= 0.5
-            self.image, self.mask = next(self.up_anim)
-            rocket = True
-        if self.speed > 0 and keys[pygame.K_DOWN]:
-            self.speed -= 5
-            self.image, self.mask = next(self.down_anim)
-            rocket = True
-        if self.fuel > 0 and keys[pygame.K_LEFT]:
-            self.vector.rotate_ip(-5)
-            self.fuel -= 0.25
-            self.image, self.mask = next(self.left_anim)
-            rocket = True
-            self.angle += 5
-        if self.fuel > 0 and keys[pygame.K_RIGHT]:
-            self.vector.rotate_ip(5)
-            self.fuel -= 0.25
-            self.image, self.mask = next(self.right_anim)
-            rocket = True
-            self.angle -= 5
+        if self.docked:
+            if keys[pygame.K_UP]:
+                self.docked = False
+                self.vector = self.docked_with.vector
+                self.speed += 10
+                self.docked_with = None
+        else:
+            if self.fuel > 0 and keys[pygame.K_UP]:
+                self.speed += 5
+                self.fuel -= 0.5
+                self.image, self.mask = next(self.up_anim)
+                rocket = True
+            if self.speed > 0 and keys[pygame.K_DOWN]:
+                self.speed -= 5
+                self.image, self.mask = next(self.down_anim)
+                rocket = True
+            if self.fuel > 0 and keys[pygame.K_LEFT]:
+                self.vector.rotate_ip(-5)
+                self.fuel -= 0.25
+                self.image, self.mask = next(self.left_anim)
+                rocket = True
+                self.angle += 5
+            if self.fuel > 0 and keys[pygame.K_RIGHT]:
+                self.vector.rotate_ip(5)
+                self.fuel -= 0.25
+                self.image, self.mask = next(self.right_anim)
+                rocket = True
+                self.angle -= 5
         if not rocket:
             self.image, self.mask = self.sheet.get_image(0, 2)
         self.image = pygame.transform.rotate(self.image, self.angle)

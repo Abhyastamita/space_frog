@@ -134,12 +134,15 @@ class Game:
             if self.player.last_collision != collided_with:
                 if self.player.speed <= S.DOCKING_SPEED:
                     # Moving slowly? Land on the asteroid
+                    self.player.rect.move(collided_with.center)
                     if self.player.size > collided_with.size:
                         collided_with.vector.reflect_ip(self.player.center.normalize())
                     self.player.vector = copy.copy(collided_with.vector)
                     self.player.speed = collided_with.speed
+                    self.player.angle = -math.degrees(math.atan2(self.player.vector.y, self.player.vector.x))
                     self.player.last_collision = collided_with
-                if self.player.speed > S.MAX_COLLISION_SPEED:
+                    self.player.docked = True
+                elif self.player.speed > S.MAX_COLLISION_SPEED:
                     # Too fast? Go splat on the asteroid
                     self.player.kill()
                     splat = Splat(self.player.world_rect.left, self.player.world_rect.top)
@@ -158,10 +161,16 @@ class Game:
                                               / (self.player.size + collided_with.size))
                     self.player.vector.reflect_ip(collided_with.center.normalize())
                     collided_with.vector.reflect_ip(self.player.center.normalize())
+                    mass_ratio = self.player.size / collided_with.size 
+                    self.player.vector.x /= mass_ratio
+                    collided_with.vector.x *= mass_ratio
+                    self.player.vector.normalize_ip()
+                    collided_with.vector.normalize_ip()
                     self.player.last_collision = collided_with
                     self.player.angle = -math.degrees(math.atan2(self.player.vector.y, self.player.vector.x))
         else:
             self.player.last_collision = None
+            self.player.docked = False
 
     def calculate_exit(self):
         self.player.distance_to_exit = self.player.center.distance_to(self.exit.center)
