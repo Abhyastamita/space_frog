@@ -3,15 +3,18 @@ import random
 import pygame
 from pygame.surface import Surface
 from pygame.sprite import Sprite
+
 import space_frog.settings as S
+from space_frog.sprite_sheet import SpriteSheet
 
 class Player(Sprite):
     def __init__(self, x, y, *groups):
         super().__init__(*groups)
         angle = random.randint(0, 360)
-        self.image = pygame.image.load('space_frog/images/space_frog.png').convert_alpha()
+        sheet = SpriteSheet(72, "space_frog/images/space_frog_full_sheet_72.png")
+        self.image, self.mask = sheet.get_image(0, 2)
+        self.image.convert_alpha()
         self.image = pygame.transform.rotate(self.image, angle)
-        self.mask = pygame.mask.from_surface(self.image)
         self.world_rect = self.image.get_rect().move(x, y)
         self.size = 2
 

@@ -171,9 +171,9 @@ class Game:
         self.viewport.update_rect(self.gates)
         self.screen.fill((1, 13, 30))
         self.background.draw(self.screen)
-        self.player_group.draw(self.screen)
         self.asteroids.draw(self.screen) 
         self.gates.draw(self.screen)
+        self.player_group.draw(self.screen)
 
 
 if __name__ == "__main__":
