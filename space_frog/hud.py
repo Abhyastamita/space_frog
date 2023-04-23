@@ -57,7 +57,8 @@ class HUD:
         self.text_lines.append(text_image_rect)
         text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 75, S.SCREEN_HEIGHT / 2 + 75), self.font, f"Press any key to begin", (0, +255, 0))
         self.text_lines.append(text_image_rect)
-        #Print title screen if there is one
+        #Print title screen if there is one 
+        self.screen.fill((0, 0, 0))
         self.show_info()
 
     def end_screen(self):
@@ -69,6 +70,7 @@ class HUD:
         text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 70, S.SCREEN_HEIGHT / 2 + 75), self.font, f"Press any key to exit", (0, +255, 0))
         self.text_lines.append(text_image_rect)
         #Print end screen if there is one
+        self.screen.fill((0, 0, 0))
         self.show_info()
 
 

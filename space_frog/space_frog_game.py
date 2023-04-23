@@ -10,6 +10,7 @@ import space_frog.settings as S
 from space_frog.player import Splat
 from space_frog.hud import HUD
 from space_frog.level import Level
+import space_frog.level_maps as level_maps
 
 class Viewport:
     def __init__(self):
@@ -33,8 +34,8 @@ class Game:
         pygame.display.set_caption("Space Frog!")
         
         level_list = []
-        level_list.append(Level("Level 1", ("blue_nebula", "small_stars_1", "big_stars_1")))
-        level_list.append(Level("Level 2", ("pink_nebula", "small_stars_2", "big_stars_2")))
+        level_list.append(Level("Level 1", ("blue_nebula", "small_stars_1", "big_stars_1"), level_maps.map1))
+        level_list.append(Level("Level 2", ("pink_nebula", "small_stars_2", "big_stars_2"), level_maps.map2))
         self.levels = iter(level_list)
         self.load_next_level()
         self.start_game_level()
@@ -132,6 +133,8 @@ class Game:
             if self.player.last_collision != collided_with:
                 if self.player.speed <= S.DOCKING_SPEED:
                     # Moving slowly? Land on the asteroid
+                    if self.player.size > collided_with.size:
+                        collided_with.vector.reflect_ip(self.player.center.normalize())
                     self.player.vector = copy.copy(collided_with.vector)
                     self.player.speed = collided_with.speed
                     self.player.last_collision = collided_with
@@ -141,7 +144,7 @@ class Game:
                     splat = Splat(self.player.world_rect.left, self.player.world_rect.top)
                     if self.player.size >= collided_with.size:
                         collided_with.speed += self.player.speed
-                    splat.vector = self.player.vector.reflect(collided_with.vector)
+                    splat.vector = self.player.vector.reflect(collided_with.center.normalize())
                     splat.speed = collided_with.speed
                     self.player_group.add(splat)
                 else:
@@ -152,9 +155,8 @@ class Game:
                                             / (self.player.size + collided_with.size))
                     collided_with.speed = abs((v2 * (collided_with.size - self.player.size) + 2 * self.player.size * v1) 
                                               / (self.player.size + collided_with.size))
-                    old_vector = self.player.vector
-                    self.player.vector.reflect_ip(collided_with.vector)
-                    collided_with.vector.reflect_ip(old_vector)
+                    self.player.vector.reflect_ip(collided_with.center.normalize())
+                    collided_with.vector.reflect_ip(self.player.center.normalize())
                     self.player.last_collision = collided_with
         else:
             self.player.last_collision = None

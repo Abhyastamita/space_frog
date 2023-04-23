@@ -37,9 +37,8 @@ class Asteroid(Sprite):
                 v2 = collided_with.speed
                 self.speed = abs((v1 * (self.size - collided_with.size) + 2 * collided_with.size * v2) / (self.size + collided_with.size))
                 collided_with.speed = abs((v2 * (collided_with.size - self.size) + 2 * self.size * v1) / (self.size + collided_with.size))
-                old_vector = self.vector
-                self.vector.reflect_ip(collided_with.vector) 
-                collided_with.vector.reflect_ip(old_vector)
+                self.vector.reflect_ip(collided_with.center.normalize()) 
+                collided_with.vector.reflect_ip(self.center.normalize())
                 self.last_collision = collided_with
                 collided_with.last_collision = self
         else:
@@ -62,12 +61,12 @@ class SmallAsteroid(Asteroid):
 
 class MediumAsteroid(Asteroid):
     def __init__(self, x, y, angle = None, speed = None, *groups):
-        super().__init__(x, y, size = 3, scale_range = (6, 10), angle = angle, speed = speed, *groups)
+        super().__init__(x, y, size = 4, scale_range = (6, 10), angle = angle, speed = speed, *groups)
 
 class LargeAsteroid(Asteroid):
     def __init__(self, x, y, angle = None, speed = None, *groups):
-        super().__init__(x, y, size = 4, scale_range = (3, 5), angle = angle, speed = speed, *groups)
+        super().__init__(x, y, size = 6, scale_range = (3, 5), angle = angle, speed = speed, *groups)
 
 class HugeAsteroid(Asteroid):
     def __init__(self, x, y, angle = None, speed = None, *groups):
-        super().__init__(x, y, size = 5, scale_range = (1, 2), angle = angle, speed = speed, *groups)
+        super().__init__(x, y, size = 12, scale_range = (1, 2), angle = angle, speed = speed, *groups)
