@@ -7,10 +7,11 @@ class Gate(Sprite):
         super().__init__(*groups)
         self.image = Surface((75, 75))
         if exit:
-            self.image.fill((0, 255, 0))
+            self.image = pygame.image.load("space_frog/images/exit_gate.png").convert_alpha()
         else:
-            self.image.fill((255, 0, 0))
+            self.image = pygame.image.load("space_frog/images/entry_gate.png").convert_alpha()
         self.world_rect = self.image.get_rect().move(x, y)
+        self.mask = pygame.mask.from_surface(self.image)
 
         self.center = pygame.Vector2(self.world_rect.center)
         self.vector = pygame.Vector2()

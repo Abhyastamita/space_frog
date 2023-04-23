@@ -53,11 +53,10 @@ class Player(Sprite):
         if self.docked:
             if keys[pygame.K_UP]:
                 self.docked = False
-                self.vector = self.docked_with.vector
                 self.speed += 10
                 self.docked_with = None
         else:
-            if self.fuel > 0 and keys[pygame.K_UP]:
+            if self.fuel > 0 and keys[pygame.K_UP] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
                 self.speed += 5
                 self.fuel -= 0.5
                 self.image, self.mask = next(self.up_anim)
@@ -96,7 +95,7 @@ class Splat(Sprite):
     def __init__(self, x, y, *groups):
         super().__init__(*groups)
         self.image = Surface((25, 25))
-        self.image.fill((0, 100, 25))
+        self.image = pygame.image.load("space_frog/images/splat.png").convert_alpha()
         self.world_rect = self.image.get_rect().move(x, y)
 
         self.center = pygame.Vector2(self.world_rect.center)
