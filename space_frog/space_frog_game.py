@@ -1,5 +1,6 @@
 import sys
 import copy
+import math
 
 import pygame
 from pygame import key
@@ -158,6 +159,7 @@ class Game:
                     self.player.vector.reflect_ip(collided_with.center.normalize())
                     collided_with.vector.reflect_ip(self.player.center.normalize())
                     self.player.last_collision = collided_with
+                    self.player.angle = -math.degrees(math.atan2(self.player.vector.y, self.player.vector.x))
         else:
             self.player.last_collision = None
 
