@@ -35,11 +35,9 @@ class Level:
                 start_x = col * S.TILE_SIZE
                 if tile == "s": # start gate
                     self.game.entry = Gate(start_x, start_y, False, self.game.gates)
-                    print(f"Entry coordinates are {start_x}, {start_y}")
                     self.game.player = Player(start_x, start_y, self.game.player_group)
                 elif tile == "e": # exit gate
                     self.game.exit = Gate(start_x, start_y, True, self.game.gates)
-                    print(f"Exit coordinates are {start_x}, {start_y}")
                 elif tile == "a": # asteroids going towards exit
                     for i in range(0, random.randint(0, 1)):
                         self.asteroids_special.add(HugeAsteroid(random.randrange(start_x, start_x + S.TILE_SIZE),

@@ -10,10 +10,10 @@ from space_frog.sprite_sheet import SpriteSheet
 class Player(Sprite):
     def __init__(self, x, y, *groups):
         super().__init__(*groups)
-        self.angle = random.randint(0, 360)
+        self.angle = 0 # random.randint(0, 360)
         self.sheet = SpriteSheet(72, "space_frog/images/space_frog_full_sheet_72.png")
         self.image, self.mask = self.sheet.get_image(0, 2)
-        self.image = pygame.transform.rotate(self.image, self.angle)
+        # self.image = pygame.transform.rotate(self.image, self.angle)
         self.world_rect = self.image.get_rect().move(x, y)
         self.size = 2
 
@@ -63,23 +63,26 @@ class Player(Sprite):
             self.fuel -= 0.25
             self.image, self.mask = next(self.left_anim)
             rocket = True
+            self.angle += 5
         if self.fuel > 0 and keys[pygame.K_RIGHT]:
             self.vector.rotate_ip(5)
             self.fuel -= 0.25
             self.image, self.mask = next(self.right_anim)
             rocket = True
+            self.angle -= 5
         if not rocket:
             self.image, self.mask = self.sheet.get_image(0, 2)
-        self.angle = self.vector.as_polar()[1]
         self.image = pygame.transform.rotate(self.image, self.angle)
         self.center += self.vector * delta * self.speed
         self.world_rect.center = self.center
+        self.mask = pygame.mask.from_surface(self.image)
 
         if self.world_rect.left > S.WORLD_WIDTH or self.world_rect.left < 0 \
             or self.world_rect.top > S.WORLD_HEIGHT or self.world_rect.top < 0:
             self.off_screen = True
         else:
             self.off_screen = False
+            
 
 class Splat(Sprite):
     def __init__(self, x, y, *groups):

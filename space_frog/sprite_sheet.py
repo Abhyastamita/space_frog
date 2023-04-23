@@ -20,7 +20,7 @@ class SpriteSheet:
                 frame_image = pygame.Surface((size, size))
                 frame_image.blit(self.sprite_sheet, (0, 0), (x, y, size, size))
                 frame_image.set_colorkey((0, 0, 0))
-                self.image = pygame.transform.rotate(frame_image, -90)
+                # self.image = pygame.transform.rotate(frame_image, -90)
                 mask = pygame.mask.from_surface(frame_image)
                 image_list.append(frame_image)
                 mask_list.append(mask)
