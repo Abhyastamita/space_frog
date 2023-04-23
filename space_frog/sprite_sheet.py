@@ -20,6 +20,7 @@ class SpriteSheet:
                 frame_image = pygame.Surface((size, size))
                 frame_image.blit(self.sprite_sheet, (0, 0), (x, y, size, size))
                 frame_image.set_colorkey((0, 0, 0))
+                self.image = pygame.transform.rotate(frame_image, -90)
                 mask = pygame.mask.from_surface(frame_image)
                 image_list.append(frame_image)
                 mask_list.append(mask)
@@ -31,3 +32,15 @@ class SpriteSheet:
     
     def get_strip(self, strip_number):
         return self.animation_strips[strip_number], self.mask_strips[strip_number]
+    
+    # def loop_strip_fw(self, strip_number):
+    #     strip, mask_strip = self.animation_strips[strip_number], self.mask_strips[strip_number]
+    #     while True:
+    #         for frame, mask in strip, mask_strip:
+    #             yield frame, mask
+
+    # def loop_strip_bw(self, strip_number):
+    #     strip, mask_strip = reversed(self.animation_strips[strip_number]), reversed(self.mask_strips[strip_number])
+    #     while True:
+    #         for frame, mask in strip, mask_strip:
+    #             yield frame, mask
