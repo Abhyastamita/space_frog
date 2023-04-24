@@ -16,7 +16,18 @@ class Gate(Sprite):
         self.center = pygame.Vector2(self.world_rect.center)
         self.vector = pygame.Vector2()
         self.speed = 0
+        self.orbit_center = None
 
-    def update(self, delta, *args):
-        self.center += self.vector * delta * self.speed
+    def update(self, delta):
+
+        if self.orbit_center:
+            orbit_distance = self.center.distance_to(self.orbit_center.center)
+            offset = pygame.math.Vector2(orbit_distance, 0)
+            self.orbit_angle -= 1
+            self.center = self.orbit_center.center + offset.rotate(self.orbit_angle) 
+
         self.world_rect.center = self.center
+
+    def set_orbit(self, sprite):
+        self.orbit_center = sprite
+        self.orbit_angle = 0

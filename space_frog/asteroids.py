@@ -21,15 +21,25 @@ class Asteroid(Sprite):
         self.world_rect = self.image.get_rect().move(x, y)
         self.size = size
         self.last_collision = None
+        self.orbit_center = None
 
         self.center = pygame.Vector2(self.world_rect.center)
         self.vector = pygame.Vector2()
         self.vector.from_polar((1, angle))
 
+    def set_orbit(self, sprite, distance):
+        self.orbit_center = sprite
+        self.max_orbit_distance = distance
+        self.orbit_angle = random.randint(0, 360)
 
     def update(self, delta, group):
         self.center += self.vector * delta * self.speed
         self.world_rect.center = self.center
+
+        if self.orbit_center and (orbit_distance := self.center.distance_to(self.orbit_center.center)) <= self.max_orbit_distance:
+            offset = pygame.math.Vector2(orbit_distance, 0)
+            self.orbit_angle -= 1
+            self.center = self.orbit_center.center + offset.rotate(self.orbit_angle) 
 
         if (collided_with := pygame.sprite.spritecollideany(self, group, pygame.sprite.collide_mask)):
             if collided_with != self.last_collision:

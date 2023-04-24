@@ -57,13 +57,13 @@ class Player(Sprite):
         rocket = False
         if self.docked:
             self.animation_list.append(self.sitting)
-            if keys[pygame.K_UP]:
+            if keys[pygame.K_UP] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
                 self.docked = False
                 self.speed += 10
                 self.docked_with = None
                 self.animation_list.extend(self.jump_sequence)
         else:
-            if self.fuel > 0 and keys[pygame.K_UP] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
+            if self.fuel > 0 and keys[pygame.K_UP]:
                 self.speed += 5
                 self.fuel -= 0.5
                 self.image, self.mask = next(self.up_anim)
@@ -88,7 +88,7 @@ class Player(Sprite):
             if self.animation_list:
                 self.image = self.animation_list.pop(0)
             else:
-                self.image, self.mask = self.sheet.get_image(0, 6)
+                self.image, self.mask = self.sheet.get_image(0, 5)
         self.image = pygame.transform.rotate(self.image, self.angle)
         self.center += self.vector * delta * self.speed
         self.world_rect.center = self.center

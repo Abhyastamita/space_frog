@@ -128,6 +128,7 @@ class Game:
     def check_for_win(self):
         if self.player.alive() and pygame.sprite.spritecollideany(self.exit, self.player_group, pygame.sprite.collide_mask):
             self.player.animation_list.extend(self.player.land_sequence)
+            self.player.animation_list.extend([self.player.sitting, self.player.sitting, self.player.sitting, self.player.sitting])
             return True
 
     def check_player_collisions(self):
