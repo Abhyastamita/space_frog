@@ -94,7 +94,7 @@ class Game:
             self.update()
             pygame.display.flip()
             self.delta = self.clock.tick(self.fps) * 0.001
-            if self.win:
+            if self.win and not self.player.animation_list:
                 break
         self.load_next_level()
         self.start_game_level()
@@ -117,7 +117,7 @@ class Game:
         self.asteroids.update(self.delta, self.asteroids)
         self.gates.update(self.delta)
         self.viewport.update(self.player)
-        if self.check_for_win():
+        if not self.win and self.check_for_win():
             self.win = True
             return
         self.calculate_exit()
@@ -127,6 +127,7 @@ class Game:
 
     def check_for_win(self):
         if self.player.alive() and pygame.sprite.spritecollideany(self.exit, self.player_group, pygame.sprite.collide_mask):
+            self.player.animation_list.extend(self.player.land_sequence)
             return True
 
     def check_player_collisions(self):
@@ -142,6 +143,7 @@ class Game:
                     self.player.angle = -math.degrees(math.atan2(self.player.vector.y, self.player.vector.x))
                     self.player.last_collision = collided_with
                     self.player.docked = True
+                    self.player.animation_list.extend(self.player.land_sequence)
                 elif self.player.speed > S.MAX_COLLISION_SPEED:
                     # Too fast? Go splat on the asteroid
                     self.player.kill()

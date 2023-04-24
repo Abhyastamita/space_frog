@@ -12,7 +12,7 @@ class Player(Sprite):
         super().__init__(*groups)
         self.angle = 0 # random.randint(0, 360)
         self.sheet = SpriteSheet(72, "space_frog/images/space_frog_full_sheet_72.png")
-        self.image, self.mask = self.sheet.get_image(0, 2)
+        self.image, self.mask = self.sheet.get_image(0, 0)
         self.world_rect = self.image.get_rect().move(x, y)
         self.size = 2
 
@@ -24,13 +24,18 @@ class Player(Sprite):
         self.center = pygame.Vector2(self.world_rect.center)
         self.vector = pygame.Vector2()
         self.vector.from_polar((1, self.angle))
-        self.speed = 10
+        self.speed = 100
         self.fuel = 100.0
         self.last_collision = None
         self.distance_to_exit = None
         self.off_screen = False
         self.docked = False
         self.docked_with = None
+        self.sitting = self.sheet.get_image(0, 0)[0]
+        self.jump_sequence = self.sheet.get_strip(0)[0][0:5]
+        self.land_sequence = self.sheet.get_strip(0)[0][6:12]
+        self.animation_list = [self.sitting, self.sitting, self.sitting, self.sitting]
+        self.animation_list.extend(self.jump_sequence)
     
 
     def loop_rocket_animation(self, direction):
@@ -51,10 +56,12 @@ class Player(Sprite):
     def update(self, delta, keys):
         rocket = False
         if self.docked:
+            self.animation_list.append(self.sitting)
             if keys[pygame.K_UP]:
                 self.docked = False
                 self.speed += 10
                 self.docked_with = None
+                self.animation_list.extend(self.jump_sequence)
         else:
             if self.fuel > 0 and keys[pygame.K_UP] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
                 self.speed += 5
@@ -78,7 +85,10 @@ class Player(Sprite):
                 rocket = True
                 self.angle -= 5
         if not rocket:
-            self.image, self.mask = self.sheet.get_image(0, 2)
+            if self.animation_list:
+                self.image = self.animation_list.pop(0)
+            else:
+                self.image, self.mask = self.sheet.get_image(0, 6)
         self.image = pygame.transform.rotate(self.image, self.angle)
         self.center += self.vector * delta * self.speed
         self.world_rect.center = self.center
