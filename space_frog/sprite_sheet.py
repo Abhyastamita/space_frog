@@ -33,14 +33,8 @@ class SpriteSheet:
     def get_strip(self, strip_number):
         return self.animation_strips[strip_number], self.mask_strips[strip_number]
     
-    # def loop_strip_fw(self, strip_number):
-    #     strip, mask_strip = self.animation_strips[strip_number], self.mask_strips[strip_number]
-    #     while True:
-    #         for frame, mask in strip, mask_strip:
-    #             yield frame, mask
-
-    # def loop_strip_bw(self, strip_number):
-    #     strip, mask_strip = reversed(self.animation_strips[strip_number]), reversed(self.mask_strips[strip_number])
-    #     while True:
-    #         for frame, mask in strip, mask_strip:
-    #             yield frame, mask
+    def loop_strip(self, strip_number):
+        strip = self.animation_strips[strip_number]
+        while True:
+            for frame in strip:
+                yield frame

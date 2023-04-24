@@ -15,5 +15,5 @@ Space Frog requires Python 3 and Pygame 2.3.0 or higher.
 
 ## Acknowledgements
 
-* Star background images created by dinvstudio [https://dinvstudio.itch.io/dynamic-space-background-lite-free]
-* Asteroid background image taken from Vesta in [https://en.wikipedia.org/wiki/Asteroid#/media/File:Eros,_Vesta_and_Ceres_size_comparison.jpg]
+* Star background images created by dinvstudio <https://dinvstudio.itch.io/dynamic-space-background-lite-free>
+* Asteroid background image taken from Vesta in <https://en.wikipedia.org/wiki/Asteroid#/media/File:Eros,_Vesta_and_Ceres_size_comparison.jpg>

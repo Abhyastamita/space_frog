@@ -1,5 +1,6 @@
 import pygame.freetype
 import space_frog.settings as S
+from space_frog.sprite_sheet import SpriteSheet
 
 pygame.freetype.init()
 
@@ -12,6 +13,7 @@ class HUD:
         self.font = pygame.freetype.SysFont('arial', 20)
         self.large_font = pygame.freetype.SysFont('arial', 40)
         self.prep_info(player)
+        self.sheet = SpriteSheet(72, "space_frog/images/space_frog_full_sheet_72.png")
 
     def prep_info(self, player):
         player_speed = str(round(player.speed, 2))
@@ -57,8 +59,11 @@ class HUD:
         self.text_lines.append(text_image_rect)
         text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 75, S.SCREEN_HEIGHT / 2 + 75), self.font, f"Press any key to begin", (0, +255, 0))
         self.text_lines.append(text_image_rect)
-        #Print title screen if there is one 
         self.screen.fill((0, 0, 0))
+        if level.title == "Level 1":
+            self.screen.blit(self.sheet.get_image(0, 0)[0], (S.SCREEN_WIDTH / 2 - 100, S.SCREEN_HEIGHT / 2 - 125))
+        else:
+            self.screen.blit(self.sheet.get_image(1, 0)[0], (S.SCREEN_WIDTH / 2, S.SCREEN_HEIGHT / 2 - 150))
         self.show_info()
 
     def end_screen(self):
@@ -69,8 +74,10 @@ class HUD:
         self.text_lines.append(text_image_rect)
         text_image_rect = self.prepare_multiline((S.SCREEN_WIDTH / 2 - 70, S.SCREEN_HEIGHT / 2 + 75), self.font, f"Press any key to exit", (0, +255, 0))
         self.text_lines.append(text_image_rect)
-        #Print end screen if there is one
         self.screen.fill((0, 0, 0))
+        self.screen.blit(self.sheet.get_image(0, 0)[0], (S.SCREEN_WIDTH / 2 - 100, S.SCREEN_HEIGHT / 2 - 125))
+        self.screen.blit(pygame.transform.flip(self.sheet.get_image(0, 0)[0], True, False), (S.SCREEN_WIDTH / 2 + 100, S.SCREEN_HEIGHT / 2 + 75))
+        self.screen.blit(self.sheet.get_image(1, 0)[0], (S.SCREEN_WIDTH / 2, S.SCREEN_HEIGHT / 2 - 150))
         self.show_info()
 
 

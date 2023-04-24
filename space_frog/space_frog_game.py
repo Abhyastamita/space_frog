@@ -36,7 +36,7 @@ class Game:
         
         level_list = []
         level_list.append(Level("Level 1", ("blue_nebula", "small_stars_1", "big_stars_1"), level_maps.map1))
-        level_list.append(Level("Level 2", ("pink_nebula", "small_stars_2", "big_stars_2"), level_maps.map2))
+        level_list.append(Level("Level 2", ("red_nebula", "small_stars_2", "big_stars_2"), level_maps.map2))
         self.levels = iter(level_list)
         self.load_next_level()
         self.start_game_level()
