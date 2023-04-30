@@ -1,6 +1,7 @@
 import sys
 import copy
 import math
+import os
 
 import pygame
 from pygame import key
@@ -29,10 +30,11 @@ class Viewport:
 class Game:
     def __init__(self):
         pygame.display.init()
-        # for m in pygame.display.list_modes():
-        #     print(m)
         self.screen = pygame.display.set_mode((S.SCREEN_WIDTH, S.SCREEN_HEIGHT))
         pygame.display.set_caption("Space Frog!")
+        #Change directory if this is a Pyinstaller exe file
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            os.chdir(sys._MEIPASS)
         
         level_list = []
         level_list.append(Level("Level 1", ("blue_nebula", "small_stars_1", "big_stars_1"), level_maps.map1))
