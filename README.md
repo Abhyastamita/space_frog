@@ -7,7 +7,7 @@ Space Frog is a Pygame game created as the final project for CPSC 4970: Python. 
 
 ## Installation
 
-Download [space_frog_game.zip](dist/space_frog_game.zip), unzip it, and run the .exe file.  This will probably only run in Windows.
+Download [space_frog_game.zip](https://github.com/Abhyastamita/space_frog/releases/download/v1.0/space_frog_game.zip), unzip it, and run the .exe file.  This will probably only run in Windows.
 
 Alternatively, install Python 3 and Pygame 2.3.0 or higher.
 
